@@ -402,13 +402,20 @@ class GWTarget(GWObject):
 
         lio_root = root.RTSRoot()
 
+        # a dict, key with tpg and storage object name
+        tpg_stg_object_dict = {}
+        for tpg in self.tpg_list:
+
+            for l in tpg.luns:
+                tpg_stg_object_dict[str(tpg.tag) + '-' + l.storage_object.name] = l.storage_object.name
+
         # process each storage object added to the gateway, and map to the tpg
         for stg_object in lio_root.storage_objects:
 
             for tpg in self.tpg_list:
                 self.logger.debug("processing tpg{}".format(tpg.tag))
 
-                if not self.lun_mapped(tpg, stg_object):
+                if not tpg_stg_object_dict.has_key(str(tpg.tag) + "-" + stg_object.name):
                     self.logger.debug("{} needed mapping to "
                                       "tpg{}".format(stg_object.name,
                                                      tpg.tag))
